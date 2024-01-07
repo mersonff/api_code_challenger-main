@@ -23,6 +23,10 @@ group :development, :test do
   gem 'database_cleaner'
   gem 'faker'
   gem 'rspec-rails'
+  gem 'rubocop-rails'
+  gem 'rubocop-rspec'
+  gem 'shoulda-matchers'
+  gem 'factory_bot_rails'
 end
 
 group :development do

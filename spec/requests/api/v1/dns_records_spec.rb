@@ -2,7 +2,7 @@ describe 'DNS Records' do
   describe 'POST /api/v1/dns_records' do
     it 'creates a DNS record with associated hostnames' do
       params = {
-        dns_record: {
+        dns_records: {
           ip: '1.1.1.1',
           hostnames_attributes: [
             { name: 'lorem.com' },
