@@ -349,6 +349,44 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
   end
 
   describe '#create' do
-    # TODO
+    context 'with the hostnames_attributes param' do
+      let(:ip) { '1.1.1.1' }
+      let(:lorem) { 'lorem.com' }
+      let(:ipsum) { 'ipsum.com' }
+      let(:dolor) { 'dolor.com' }
+
+      let(:payload) do
+        {
+          dns_records: {
+            ip: ip,
+            hostnames_attributes: [
+              {
+                hostname: lorem
+              },
+              {
+                hostname: ipsum
+              },
+              {
+                hostname: dolor
+              }
+            ]
+          }
+        }.to_json
+      end
+
+      before :each do
+        request.accept = 'application/json'
+        request.content_type = 'application/json'
+
+        post(:create, body: payload, format: :json)
+      end
+
+      it 'responds with valid response', :aggregate_failures do
+        expect(response).to have_http_status(:created)
+        expect(parsed_body[:id]).to eq DnsRecord.last.id
+        expect(DnsRecord.count).to eq 1
+        expect(Hostname.count).to eq 3
+      end
+    end
   end
 end
