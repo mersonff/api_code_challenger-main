@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Api::V1::DnsRecordsController, type: :controller do
@@ -20,7 +22,7 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
 
       let(:payload1) do
         {
-          dns_records: {
+          dns_record: {
             ip: ip1,
             hostnames_attributes: [
               {
@@ -42,7 +44,7 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
 
       let(:payload2) do
         {
-          dns_records: {
+          dns_record: {
             ip: ip2,
             hostnames_attributes: [
               {
@@ -55,7 +57,7 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
 
       let(:payload3) do
         {
-          dns_records: {
+          dns_record: {
             ip: ip3,
             hostnames_attributes: [
               {
@@ -74,7 +76,7 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
 
       let(:payload4) do
         {
-          dns_records: {
+          dns_record: {
             ip: ip4,
             hostnames_attributes: [
               {
@@ -96,7 +98,7 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
 
       let(:payload5) do
         {
-          dns_records: {
+          dns_record: {
             ip: ip5,
             hostnames_attributes: [
               {
@@ -128,23 +130,23 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
             records: [
               {
                 id: 6,
-                ip_address: ip1
+                ip: ip1
               },
               {
                 id: 7,
-                ip_address: ip2
+                ip: ip2
               },
               {
                 id: 8,
-                ip_address: ip3
+                ip: ip3
               },
               {
                 id: 9,
-                ip_address: ip4
+                ip: ip4
               },
               {
                 id: 10,
-                ip_address: ip5
+                ip: ip5
               }
             ],
             related_hostnames: [
@@ -193,30 +195,26 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
             total_records: 3,
             records: [
               {
-                id: 6,
-                ip_address: ip1
+                id: 16,
+                ip: ip1
               },
               {
-                id: 8,
-                ip_address: ip3
+                id: 18,
+                ip: ip3
               },
               {
-                id: 9,
-                ip_address: ip4
+                id: 19,
+                ip: ip4
               }
             ],
             related_hostnames: [
               {
                 count: 3,
-                hostname: amet
+                hostname: ipsum
               },
               {
-                count: 1,
-                hostname: lorem
-              },
-              {
-                count: 1,
-                hostname: sit
+                count: 3,
+                hostname: dolor
               }
             ]
           }
@@ -244,19 +242,19 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
             records: [
               {
                 id: 27,
-                ip_address: ip2
+                ip: ip2
               },
               {
                 id: 28,
-                ip_address: ip3
+                ip: ip3
               },
               {
                 id: 29,
-                ip_address: ip4
+                ip: ip4
               },
               {
                 id: 30,
-                ip_address: ip5
+                ip: ip5
               }
             ],
             related_hostnames: [
@@ -303,21 +301,21 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
             records: [
               {
                 id: 36,
-                ip_address: ip1
+                ip: ip1
               },
               {
                 id: 38,
-                ip_address: ip3
+                ip: ip3
               }
             ],
             related_hostnames: [
               {
-                count: 1,
-                hostname: lorem
+                count: 2,
+                hostname: ipsum
               },
               {
                 count: 2,
-                hostname: amet
+                hostname: dolor
               }
             ]
           }
@@ -349,6 +347,44 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
   end
 
   describe '#create' do
-    # TODO
+    context 'with the hostnames_attributes param' do
+      let(:ip) { '1.1.1.1' }
+      let(:lorem) { 'lorem.com' }
+      let(:ipsum) { 'ipsum.com' }
+      let(:dolor) { 'dolor.com' }
+
+      let(:payload) do
+        {
+          dns_record: {
+            ip: ip,
+            hostnames_attributes: [
+              {
+                hostname: lorem
+              },
+              {
+                hostname: ipsum
+              },
+              {
+                hostname: dolor
+              }
+            ]
+          }
+        }.to_json
+      end
+
+      before :each do
+        request.accept = 'application/json'
+        request.content_type = 'application/json'
+
+        post(:create, body: payload, format: :json)
+      end
+
+      it 'responds with valid response', :aggregate_failures do
+        expect(response).to have_http_status(:created)
+        expect(parsed_body[:id]).to eq DnsRecord.last.id
+        expect(DnsRecord.count).to eq 1
+        expect(Hostname.count).to eq 3
+      end
+    end
   end
 end
