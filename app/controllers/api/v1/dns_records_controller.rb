@@ -2,8 +2,16 @@ module Api
   module V1
     class DnsRecordsController < ApplicationController
       # GET /dns_records
+
       def index
-        # TODO: Implement this action
+        if request.format.html?
+          render json: { error: 'Invalid format' }, status: :unprocessable_entity
+          return
+        end
+
+        records = DnsRecordQueryService.new(params).call
+
+        render json: records, status: :ok
       end
 
       # POST /dns_records
@@ -20,7 +28,7 @@ module Api
       private
 
       def dns_record_params
-        params.require(:dns_records).permit(:ip, hostnames_attributes: [:hostname])
+        params.require(:dns_record).permit(:ip, hostnames_attributes: [:hostname])
       end
     end
   end
