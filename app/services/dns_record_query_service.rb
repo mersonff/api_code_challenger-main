@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class DnsRecordQueryService
   attr_accessor :page, :included_hostnames, :excluded_hostnames, :records
 
   def initialize(params)
-    self.page = params["page"]
-    self.included_hostnames = parse_params(params["included"])
-    self.excluded_hostnames = parse_params(params["excluded"])
+    self.page = params['page']
+    self.included_hostnames = parse_params(params['included'])
+    self.excluded_hostnames = parse_params(params['excluded'])
   end
 
   def call
@@ -16,9 +18,9 @@ class DnsRecordQueryService
 
   def retrieve_records
     self.records = DnsRecord
-                     .search(included_records_ids, excluded_records_ids)
-                     .order(:id)
-                     .page(page)
+                   .search(included_records_ids, excluded_records_ids)
+                   .order(:id)
+                   .page(page)
   end
 
   def included_records_ids
@@ -58,10 +60,14 @@ class DnsRecordQueryService
     hostnames = records.flat_map { |record| uniq_hostnames_for_dns(record) }
 
     filtered_hostnames = if included_hostnames.present?
-                         Hostname.joins(:dns_records).where(dns_records: { id: records.ids }).where(hostname: included_hostnames).uniq { |h| h['hostname'] }
-                       else
-                         Hostname.joins(:dns_records).where(dns_records: { id: records.ids }).uniq { |h| h['hostname'] }
-                       end
+                           Hostname.joins(:dns_records).where(dns_records: { id: records.ids }).where(hostname: included_hostnames).uniq do |h|
+                             h['hostname']
+                           end
+                         else
+                           Hostname.joins(:dns_records).where(dns_records: { id: records.ids }).uniq do |h|
+                             h['hostname']
+                           end
+                         end
 
     filtered_hostnames.map do |hostname|
       {
